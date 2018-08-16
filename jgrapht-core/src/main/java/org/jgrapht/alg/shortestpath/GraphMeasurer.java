@@ -22,6 +22,7 @@ import org.jgrapht.alg.interfaces.*;
 import org.jgrapht.alg.util.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 /**
  * Algorithm class which computes a number of distance related metrics. A summary of various
@@ -47,6 +48,8 @@ public class GraphMeasurer<V, E>
     private double diameter = 0;
     /* Radius of the graph */
     private double radius = Double.POSITIVE_INFINITY;
+    /* Degree of separation */
+    private double degreeOfSeparation = 0;
 
     /**
      * Constructs a new instance of GraphMeasurer. {@link FloydWarshallShortestPaths} is used as the
@@ -90,6 +93,24 @@ public class GraphMeasurer<V, E>
         computeEccentricityMap();
         return diameter;
     }
+    
+    public double getEffectiveDiameter(double percentage)
+    {
+        computeEccentricityMap();
+        
+        double effectiveDiameter;
+        // Compute the effective diameter
+        if (eccentricityMap.isEmpty()) {
+            effectiveDiameter = 0;
+        } else {
+            List<Double> values = new ArrayList<>(eccentricityMap.values());
+            Collections.sort(values);
+            int lastIndex = (int) Math.ceil(values.size() * percentage);
+            effectiveDiameter = values.subList(0, lastIndex).stream().collect(Collectors.averagingDouble(d -> d));
+        }
+        
+        return effectiveDiameter;
+    }
 
     /**
      * Compute the <a href="http://mathworld.wolfram.com/GraphRadius.html">radius</a> of the graph.
@@ -103,6 +124,12 @@ public class GraphMeasurer<V, E>
     {
         computeEccentricityMap();
         return radius;
+    }
+    
+    public double getDegreeofSeparation()
+    {
+        computeEccentricityMap();
+        return degreeOfSeparation;
     }
 
     /**
@@ -224,10 +251,13 @@ public class GraphMeasurer<V, E>
             diameter = 0;
             radius = 0;
         } else {
+            double total = 0;
             for (V v : graph.vertexSet()) {
                 diameter = Math.max(diameter, eccentricityMap.get(v));
                 radius = Math.min(radius, eccentricityMap.get(v));
+                total += eccentricityMap.get(v);
             }
+            degreeOfSeparation = total / graph.vertexSet().size();
         }
     }
 }

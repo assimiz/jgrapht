@@ -52,6 +52,11 @@ public abstract class GraphMetrics
     {
         return new GraphMeasurer<>(graph).getDiameter();
     }
+    
+    public static <V, E> double getEffectiveDiameter(Graph<V, E> graph, double percentage)
+    {
+        return new GraphMeasurer<>(graph).getEffectiveDiameter(percentage);
+    }
 
     /**
      * Compute the <a href="http://mathworld.wolfram.com/GraphRadius.html">radius</a> of the graph.
@@ -73,6 +78,11 @@ public abstract class GraphMetrics
         return new GraphMeasurer<>(graph).getRadius();
     }
 
+    public static <V, E> double getDegreeOfSeparation(Graph<V, E> graph)
+    {
+        return new GraphMeasurer<>(graph).getDegreeofSeparation();
+    }
+    
     /**
      * Compute the <a href="http://mathworld.wolfram.com/Girth.html">girth</a> of the graph. The
      * girth of a graph is the length (number of edges) of the smallest cycle in the graph. Acyclic
